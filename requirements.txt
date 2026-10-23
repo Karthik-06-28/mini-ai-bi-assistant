@@ -1,6 +1,9 @@
 flask==3.1.0
 flask-cors==5.0.0
 google-generativeai==0.8.3
+google-genai==2.31.0
 python-dotenv==1.0.1
 pandas==2.2.3
 pytest==8.3.4
+requests==2.32.3
+sqlparse==0.5.1

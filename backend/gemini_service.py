@@ -121,7 +121,7 @@ ANSWER_SYSTEM_PROMPT = """You are a business intelligence analyst presenting dat
 
 STRICT RULES:
 1. ONLY use the numbers and data provided in the 'query_results' — do NOT invent, estimate, or modify numbers.
-2. Format currency in INR with ₹ symbol and comma separators (e.g., ₹6,21,800).
+2. Format currency in INR with 'Rs.' prefix and comma separators (e.g., Rs. 6,21,800).
 3. If results are empty, say: "No data found matching your criteria."
 4. Be concise, direct, and factual.
 5. Highlight key findings.
@@ -402,45 +402,70 @@ def deterministic_answer_fallback(question, sql_query, query_results):
 
 
 # ─────────────────────────────────────────────────────────
-# PUBLIC INTERFACE
+# PUBLIC INTERFACE & GEMINI 2.5 FLASH LITE INTEGRATION
 # ─────────────────────────────────────────────────────────
+
+# Candidate model names in priority order (Gemini Flash Lite models)
+FLASH_LITE_MODELS = [
+    "gemini-3.5-flash-lite",
+    "gemini-flash-lite-latest",
+    "gemini-2.5-flash-lite",
+    "gemini-2.5-flash"
+]
+
+
+def _call_gemini_with_fallback(system_instruction, prompt_text):
+    """
+    Attempt calling Gemini using Flash Lite models in priority order.
+    Returns parsed JSON result if successful, or raises Exception.
+    """
+    api_key = get_api_key()
+    if not api_key:
+        raise ValueError("No Gemini API key available.")
+
+    genai.configure(api_key=api_key)
+    last_err = None
+
+    for model_name in FLASH_LITE_MODELS:
+        try:
+            model = genai.GenerativeModel(
+                model_name=model_name,
+                system_instruction=system_instruction
+            )
+            response = model.generate_content(
+                prompt_text,
+                generation_config=genai.types.GenerationConfig(
+                    temperature=0.1,
+                    response_mime_type="application/json"
+                ),
+                request_options={"timeout": 10}
+            )
+            parsed = json.loads(response.text)
+            parsed["success"] = True
+            parsed["model_used"] = model_name
+            return parsed
+        except Exception as e:
+            last_err = e
+            continue
+
+    raise last_err or Exception("All Gemini Flash Lite model candidates failed.")
+
 
 def generate_sql_from_question(question):
     """
     STAGE 1: Convert a natural language question to a SQL query.
-    Uses Gemini 2.0 Flash when API key is provided, falling back seamlessly
-    to deterministic parsing when offline.
+    Uses Gemini 2.5 Flash Lite, falling back seamlessly to deterministic parsing.
     """
     api_key = get_api_key()
 
     if not api_key:
-        # Fallback to deterministic logic
         return deterministic_sql_fallback(question)
 
     try:
-        genai.configure(api_key=api_key)
-        model = genai.GenerativeModel(
-            model_name="gemini-2.0-flash",
-            system_instruction=SQL_SYSTEM_PROMPT
-        )
-
-        response = model.generate_content(
-            f"User question: {question}",
-            generation_config=genai.types.GenerationConfig(
-                temperature=0.1,
-                response_mime_type="application/json"
-            )
-        )
-
-        result = json.loads(response.text)
-        result["success"] = True
-        return result
-
-    except Exception as e:
-        # If Gemini API call encounters quota/network issues, gracefully fallback
-        fallback = deterministic_sql_fallback(question)
-        fallback["reasoning_steps"].insert(0, f"Notice: Live Gemini query fell back to deterministic engine ({str(e)[:60]}...)")
-        return fallback
+        return _call_gemini_with_fallback(SQL_SYSTEM_PROMPT, f"User question: {question}")
+    except Exception:
+        # Fallback to deterministic logic cleanly without internal debug notices
+        return deterministic_sql_fallback(question)
 
 
 def generate_answer_from_results(question, sql_query, query_results):
@@ -452,36 +477,16 @@ def generate_answer_from_results(question, sql_query, query_results):
     if not api_key:
         return deterministic_answer_fallback(question, sql_query, query_results)
 
+    results_str = json.dumps(query_results, indent=2, default=str)
+    prompt = (
+        f"User Question: {question}\n\n"
+        f"SQL Query That Was Executed: {sql_query}\n\n"
+        f"Actual Query Results From Database:\n{results_str}\n\n"
+        "Based ONLY on these actual results, provide a clear, accurate answer.\n"
+        "Do NOT add any data that is not in the results above."
+    )
+
     try:
-        genai.configure(api_key=api_key)
-        model = genai.GenerativeModel(
-            model_name="gemini-2.0-flash",
-            system_instruction=ANSWER_SYSTEM_PROMPT
-        )
-
-        prompt = f"""
-User's Question: {question}
-
-SQL Query That Was Executed: {sql_query}
-
-Actual Query Results From Database:
-{json.dumps(query_results, indent=2, default=str)}
-
-Based ONLY on these actual results, provide a clear, accurate answer.
-Do NOT add any data that is not in the results above.
-"""
-
-        response = model.generate_content(
-            prompt,
-            generation_config=genai.types.GenerationConfig(
-                temperature=0.1,
-                response_mime_type="application/json"
-            )
-        )
-
-        result = json.loads(response.text)
-        result["success"] = True
-        return result
-
+        return _call_gemini_with_fallback(ANSWER_SYSTEM_PROMPT, prompt)
     except Exception:
         return deterministic_answer_fallback(question, sql_query, query_results)

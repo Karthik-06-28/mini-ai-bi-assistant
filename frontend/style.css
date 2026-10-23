@@ -305,21 +305,33 @@ body::before {
     box-shadow: var(--shadow-card);
 }
 
-/* Answer section */
-.answer-section {
-    margin-bottom: 20px;
-}
-
-.answer-label {
+.response-header-bar {
     display: flex;
     align-items: center;
-    gap: 8px;
+    justify-content: flex-end;
+    margin-bottom: 12px;
+}
+
+.source-side-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    background: rgba(59, 130, 246, 0.08);
+    border: 1px solid rgba(59, 130, 246, 0.2);
+    border-radius: 999px;
     font-size: 0.72rem;
+    color: var(--text-secondary);
+}
+
+.source-side-badge strong {
+    color: var(--accent-blue);
     font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--accent-emerald);
-    margin-bottom: 10px;
+}
+
+.source-side-badge svg {
+    color: var(--accent-blue);
+    flex-shrink: 0;
 }
 
 .answer-text {

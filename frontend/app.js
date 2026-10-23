@@ -176,152 +176,41 @@ function appendAssistantResponse(data) {
 
     const responseId = "resp-" + Date.now();
 
-    // 1. Highlights tags (if any)
-    let highlightsHtml = "";
-    if (data.highlights && data.highlights.length > 0) {
-        highlightsHtml = `
-            <div class="highlights">
-                ${data.highlights.map(h => `<span class="highlight-tag">✨ ${escapeHtml(h)}</span>`).join("")}
-            </div>
-        `;
-    }
-
-    // 2. Reasoning Steps List
-    let reasoningHtml = "";
-    if (data.reasoning_steps && data.reasoning_steps.length > 0) {
-        reasoningHtml = `
-            <div class="collapsible">
-                <div class="collapsible-header" onclick="toggleCollapsible(this)">
-                    <span>🧠 AI Reasoning & Execution Steps (${data.reasoning_steps.length})</span>
-                    <span class="arrow">▼</span>
-                </div>
-                <div class="collapsible-body open">
-                    <div class="collapsible-content">
-                        <ul class="reasoning-steps">
-                            ${data.reasoning_steps.map(step => `<li>${escapeHtml(step)}</li>`).join("")}
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        `;
-    }
-
-    // 3. SQL Query Section
-    const escapedSql = escapeHtml(data.sql_query || "");
-    const sqlSectionHtml = `
-        <div class="collapsible">
-            <div class="collapsible-header" onclick="toggleCollapsible(this)">
-                <span>⚡ Executed SQL Query (Deterministic Proof)</span>
-                <span class="arrow">▼</span>
-            </div>
-            <div class="collapsible-body open">
-                <div class="collapsible-content">
-                    <div class="sql-display">
-                        <button class="copy-btn" onclick="copySql(this, '${escapeForAttribute(data.sql_query)}')">Copy SQL</button>
-                        <pre class="sql-code"><code>${escapedSql}</code></pre>
-                    </div>
-                </div>
-            </div>
-        </div>
-    `;
-
-    // 4. Source Attribution Section
+    // Subtle side Source pill
     const source = data.source || {};
-    const sourceHtml = `
-        <div class="collapsible">
-            <div class="collapsible-header" onclick="toggleCollapsible(this)">
-                <span>📍 Grounding & Source Attribution</span>
-                <span class="arrow">▼</span>
-            </div>
-            <div class="collapsible-body">
-                <div class="collapsible-content">
-                    <div class="source-info">
-                        <div class="source-item">
-                            <div class="label">Database</div>
-                            <div class="value">${escapeHtml(source.database || "SQLite")}</div>
-                        </div>
-                        <div class="source-item">
-                            <div class="label">Table</div>
-                            <div class="value">${escapeHtml(source.table || "sales_data")}</div>
-                        </div>
-                        <div class="source-item">
-                            <div class="label">Rows Evaluated</div>
-                            <div class="value">${source.rows_returned !== undefined ? source.rows_returned : 0}</div>
-                        </div>
-                        <div class="source-item">
-                            <div class="label">Access Mode</div>
-                            <div class="value">${escapeHtml(source.connection_mode || "Read-Only (mode=ro)")}</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+    const rowCount = source.rows_returned !== undefined ? source.rows_returned : (data.data ? data.data.length : 1);
+    const sourceBadgeHtml = `
+        <div class="source-side-badge">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4"/>
+            </svg>
+            <span>Source: <strong>${escapeHtml(source.database || "SQLite")}</strong> &bull; Table: <strong>${escapeHtml(source.table || "sales_data")}</strong> (${rowCount} row${rowCount === 1 ? '' : 's'})</span>
         </div>
     `;
 
-    // 5. Supporting Data Table
-    let tableHtml = "";
-    if (data.data && data.data.length > 0) {
-        const columns = Object.keys(data.data[0]);
-        const rowsHtml = data.data.slice(0, 50).map(row => {
-            return `<tr>${columns.map(col => `<td>${formatCellValue(col, row[col])}</td>`).join("")}</tr>`;
-        }).join("");
-
-        tableHtml = `
-            <div class="collapsible">
-                <div class="collapsible-header" onclick="toggleCollapsible(this)">
-                    <span>📋 Supporting Figures & Data Table (${data.data.length} row${data.data.length > 1 ? 's' : ''})</span>
-                    <span class="arrow">▼</span>
-                </div>
-                <div class="collapsible-body">
-                    <div class="collapsible-content">
-                        <div class="data-table-wrapper">
-                            <table class="data-table">
-                                <thead>
-                                    <tr>${columns.map(c => `<th>${escapeHtml(formatHeader(c))}</th>`).join("")}</tr>
-                                </thead>
-                                <tbody>${rowsHtml}</tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        `;
-    }
-
-    // 6. Chart Container (if chartable data)
+    // Chart container (only when multi-row comparisons or trends)
     let chartContainerHtml = "";
     const shouldRenderChart = canRenderChart(data);
     if (shouldRenderChart) {
         chartContainerHtml = `
-            <div class="chart-container">
+            <div class="chart-container" style="margin-top: 14px;">
                 <canvas id="chart-${responseId}"></canvas>
             </div>
         `;
     }
 
-    // Assemble full card HTML
+    // Clean, executive UI: Answer + Source side badge
     div.innerHTML = `
-        <div class="answer-section">
-            <div class="answer-label">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                    <path d="M22 11.08V12a10 10 0 11-5.93-9.14"/>
-                    <path d="M22 4L12 14.01l-3-3"/>
-                </svg>
-                Verified Answer
-            </div>
-            <div class="answer-text">${formatMarkdownText(data.answer)}</div>
-            ${highlightsHtml}
+        <div class="response-header-bar">
+            ${sourceBadgeHtml}
         </div>
+        <div class="answer-text">${formatMarkdownText(data.answer)}</div>
         ${chartContainerHtml}
-        ${reasoningHtml}
-        ${sqlSectionHtml}
-        ${sourceHtml}
-        ${tableHtml}
     `;
 
     container.appendChild(div);
 
-    // Render Chart.js if applicable
+    // Render Chart.js if multi-row trend
     if (shouldRenderChart) {
         renderChart(`chart-${responseId}`, data);
     }
