@@ -4,6 +4,8 @@ An AI-powered Business Intelligence application that enables business stakeholde
 
 Powered by **Google Gemini 2.0 Flash**, **SQLite**, and **Flask**, with **100% zero-hallucination grounding**, **step-by-step reasoning**, and **full source attribution**.
 
+> 📖 **Looking for the complete start-to-finish execution guide?** Read the [**Complete User & Execution Guide**](docs/COMPLETE_USER_GUIDE.md) for step-by-step file lifecycles, execution commands, and GitHub submission instructions.
+
 ---
 
 ## 🌟 Key Features
