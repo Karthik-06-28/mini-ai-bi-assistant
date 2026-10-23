@@ -28,47 +28,16 @@
                         <p class="subtitle">Ask questions about your sales data in plain English</p>
                     </div>
                 </div>
-                <div class="header-badge" id="status-badge">
-                    <span class="status-dot"></span>
-                    <span id="status-text">Connecting...</span>
-                </div>
             </div>
         </header>
 
         <!-- ─── Main Chat Area ─── -->
         <main class="chat-area" id="chat-area">
-            <!-- Welcome Card -->
+            <!-- Empty state greeting -->
             <div class="welcome-card" id="welcome-card">
-                <div class="welcome-icon">💡</div>
-                <h2>Welcome! Ask me anything about your sales data.</h2>
-                <p>I analyze your database and give answers backed by real SQL queries — no guessing, no hallucination.</p>
-                
-                <div class="suggestions-grid">
-                    <button class="suggestion-btn" onclick="askSuggestion(this)">
-                        <span class="suggestion-icon">💰</span>
-                        <span>What is the total revenue?</span>
-                    </button>
-                    <button class="suggestion-btn" onclick="askSuggestion(this)">
-                        <span class="suggestion-icon">🏆</span>
-                        <span>Which product generated the highest revenue?</span>
-                    </button>
-                    <button class="suggestion-btn" onclick="askSuggestion(this)">
-                        <span class="suggestion-icon">📈</span>
-                        <span>What is the monthly revenue trend?</span>
-                    </button>
-                    <button class="suggestion-btn" onclick="askSuggestion(this)">
-                        <span class="suggestion-icon">🌍</span>
-                        <span>Which region generated the highest sales?</span>
-                    </button>
-                    <button class="suggestion-btn" onclick="askSuggestion(this)">
-                        <span class="suggestion-icon">📊</span>
-                        <span>How did revenue change between January and March?</span>
-                    </button>
-                    <button class="suggestion-btn" onclick="askSuggestion(this)">
-                        <span class="suggestion-icon">🛒</span>
-                        <span>What are the sales by category?</span>
-                    </button>
-                </div>
+                <div class="welcome-icon">💬</div>
+                <h2>AI Sales Intelligence Assistant</h2>
+                <p>Type any question below to analyze sales, products, revenue, or trends.</p>
             </div>
 
             <!-- Chat messages are dynamically inserted here -->

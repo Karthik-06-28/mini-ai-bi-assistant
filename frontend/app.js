@@ -14,33 +14,8 @@ let activeChart = null;
 
 // Initialize when DOM is ready
 document.addEventListener("DOMContentLoaded", () => {
-    checkHealth();
     setupEventListeners();
 });
-
-/**
- * Health check on backend server and database
- */
-async function checkHealth() {
-    const statusText = document.getElementById("status-text");
-    const statusDot = document.querySelector(".status-dot");
-
-    try {
-        const response = await fetch("/api/health");
-        const data = await response.json();
-
-        if (data.status === "healthy" && data.database_loaded) {
-            statusText.textContent = `Online (${data.row_count} transactions)`;
-            statusDot.classList.add("connected");
-        } else {
-            statusText.textContent = "DB Not Loaded";
-            statusDot.style.background = "var(--accent-amber)";
-        }
-    } catch (err) {
-        statusText.textContent = "Offline";
-        statusDot.style.background = "var(--accent-rose)";
-    }
-}
 
 /**
  * Setup keyboard and click listeners
