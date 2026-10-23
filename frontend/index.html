@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Mini AI Business Intelligence Assistant — Ask natural language questions about sales data and get answers backed by real SQL queries.">
+    <title>Mini AI BI Assistant</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <!-- Chart.js for data visualizations -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        <!-- ─── Header ─── -->
+        <header class="app-header">
+            <div class="header-content">
+                <div class="logo-section">
+                    <div class="logo-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h1>Mini AI BI Assistant</h1>
+                        <p class="subtitle">Ask questions about your sales data in plain English</p>
+                    </div>
+                </div>
+                <div class="header-badge" id="status-badge">
+                    <span class="status-dot"></span>
+                    <span id="status-text">Connecting...</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- ─── Main Chat Area ─── -->
+        <main class="chat-area" id="chat-area">
+            <!-- Welcome Card -->
+            <div class="welcome-card" id="welcome-card">
+                <div class="welcome-icon">💡</div>
+                <h2>Welcome! Ask me anything about your sales data.</h2>
+                <p>I analyze your database and give answers backed by real SQL queries — no guessing, no hallucination.</p>
+                
+                <div class="suggestions-grid">
+                    <button class="suggestion-btn" onclick="askSuggestion(this)">
+                        <span class="suggestion-icon">💰</span>
+                        <span>What is the total revenue?</span>
+                    </button>
+                    <button class="suggestion-btn" onclick="askSuggestion(this)">
+                        <span class="suggestion-icon">🏆</span>
+                        <span>Which product generated the highest revenue?</span>
+                    </button>
+                    <button class="suggestion-btn" onclick="askSuggestion(this)">
+                        <span class="suggestion-icon">📈</span>
+                        <span>What is the monthly revenue trend?</span>
+                    </button>
+                    <button class="suggestion-btn" onclick="askSuggestion(this)">
+                        <span class="suggestion-icon">🌍</span>
+                        <span>Which region generated the highest sales?</span>
+                    </button>
+                    <button class="suggestion-btn" onclick="askSuggestion(this)">
+                        <span class="suggestion-icon">📊</span>
+                        <span>How did revenue change between January and March?</span>
+                    </button>
+                    <button class="suggestion-btn" onclick="askSuggestion(this)">
+                        <span class="suggestion-icon">🛒</span>
+                        <span>What are the sales by category?</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Chat messages are dynamically inserted here -->
+            <div id="chat-messages"></div>
+        </main>
+
+        <!-- ─── Input Area ─── -->
+        <footer class="input-area">
+            <div class="input-container">
+                <input 
+                    type="text" 
+                    id="question-input" 
+                    placeholder="Ask a question about sales data..."
+                    autocomplete="off"
+                    maxlength="500"
+                >
+                <button id="send-btn" onclick="sendQuestion()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>
+                    </svg>
+                </button>
+            </div>
+            <p class="input-hint">Powered by Google Gemini · Answers grounded in real database queries</p>
+        </footer>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
