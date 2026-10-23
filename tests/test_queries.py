@@ -28,21 +28,22 @@ from backend.config import CSV_PATH
 class TestBenchmarkQueries:
     """Test suite executing the 5 core business questions against real data."""
 
-    @pytest.fixture(scope="class", autouse=True)
-    def setup_database(self, tmp_path_factory):
-        """Ensure test database is primed."""
+    @pytest.fixture(scope="class")
+    def db_path(self, tmp_path_factory):
+        """Ensure test database is primed and return its path."""
         temp_dir = tmp_path_factory.mktemp("query_test_db")
-        self.__class__.db_path = os.path.join(temp_dir, "query_sales.db")
-        load_csv_to_database(csv_path=CSV_PATH, db_path=self.__class__.db_path)
+        path = os.path.join(temp_dir, "query_sales.db")
+        load_csv_to_database(csv_path=CSV_PATH, db_path=path)
+        return path
 
-    def test_q1_total_revenue(self):
+    def test_q1_total_revenue(self, db_path):
         """Question 1: What is the total revenue?"""
         sql = """
             SELECT SUM(revenue) AS total_revenue, COUNT(*) AS completed_count
             FROM sales_data
             WHERE status = 'Completed' AND revenue IS NOT NULL
         """
-        res = execute_query(sql, db_path=self.db_path)
+        res = execute_query(sql, db_path=db_path)
         assert res["success"] is True
         assert len(res["data"]) == 1
         total_rev = res["data"][0]["total_revenue"]
@@ -50,7 +51,7 @@ class TestBenchmarkQueries:
         assert total_rev == 1439200.0
         assert res["data"][0]["completed_count"] == 49
 
-    def test_q2_highest_revenue_product(self):
+    def test_q2_highest_revenue_product(self, db_path):
         """Question 2: Which product generated the highest revenue?"""
         sql = """
             SELECT product, SUM(revenue) AS total_revenue
@@ -60,7 +61,7 @@ class TestBenchmarkQueries:
             ORDER BY total_revenue DESC
             LIMIT 1
         """
-        res = execute_query(sql, db_path=self.db_path)
+        res = execute_query(sql, db_path=db_path)
         assert res["success"] is True
         assert len(res["data"]) == 1
         top_product = res["data"][0]["product"]
@@ -69,7 +70,7 @@ class TestBenchmarkQueries:
         assert top_product == "Monitor"
         assert top_rev == 473000.0
 
-    def test_q3_monthly_revenue_trend(self):
+    def test_q3_monthly_revenue_trend(self, db_path):
         """Question 3: What is the monthly revenue trend?"""
         sql = """
             SELECT order_month, SUM(revenue) AS total_revenue
@@ -78,7 +79,7 @@ class TestBenchmarkQueries:
             GROUP BY order_month
             ORDER BY order_month ASC
         """
-        res = execute_query(sql, db_path=self.db_path)
+        res = execute_query(sql, db_path=db_path)
         assert res["success"] is True
         assert len(res["data"]) == 6  # 6 months (Jan - Jun 2026)
         
@@ -91,7 +92,7 @@ class TestBenchmarkQueries:
         assert rev_by_month["2026-01"] == 210250.0
         assert rev_by_month["2026-05"] == 318500.0  # Peak month
 
-    def test_q4_highest_sales_region(self):
+    def test_q4_highest_sales_region(self, db_path):
         """Question 4: Which region generated the highest sales?"""
         sql = """
             SELECT region, SUM(revenue) AS total_revenue
@@ -101,7 +102,7 @@ class TestBenchmarkQueries:
             ORDER BY total_revenue DESC
             LIMIT 1
         """
-        res = execute_query(sql, db_path=self.db_path)
+        res = execute_query(sql, db_path=db_path)
         assert res["success"] is True
         assert len(res["data"]) == 1
         top_region = res["data"][0]["region"]
@@ -110,7 +111,7 @@ class TestBenchmarkQueries:
         assert top_region == "South"
         assert top_rev == 411200.0
 
-    def test_q5_revenue_change_between_two_months(self):
+    def test_q5_revenue_change_between_two_months(self, db_path):
         """Question 5: How did revenue change between two months (Jan and Feb 2026)?"""
         sql = """
             SELECT order_month, SUM(revenue) AS total_revenue
@@ -119,7 +120,7 @@ class TestBenchmarkQueries:
             GROUP BY order_month
             ORDER BY order_month ASC
         """
-        res = execute_query(sql, db_path=self.db_path)
+        res = execute_query(sql, db_path=db_path)
         assert res["success"] is True
         assert len(res["data"]) == 2
         
