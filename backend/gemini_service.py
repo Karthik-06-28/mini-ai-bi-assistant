@@ -321,7 +321,7 @@ def deterministic_answer_fallback(question, sql_query, query_results):
     if "total_revenue" in first and len(query_results) == 1 and "product" not in first and "region" not in first and "order_month" not in first:
         rev = first["total_revenue"]
         count = first.get("transaction_count", "")
-        formatted_rev = f"₹{rev:,.2f}" if rev else "₹0.00"
+        formatted_rev = f"Rs. {rev:,.2f}" if rev else "Rs. 0.00"
         tx_str = f" across {count} completed transactions" if count else ""
         return {
             "success": True,
@@ -334,7 +334,7 @@ def deterministic_answer_fallback(question, sql_query, query_results):
         prod = first["product"]
         rev = first["total_revenue"]
         units = first.get("total_units", "")
-        formatted_rev = f"₹{rev:,.2f}"
+        formatted_rev = f"Rs. {rev:,.2f}"
         units_str = f" with {units} units sold" if units else ""
         return {
             "success": True,
@@ -346,7 +346,7 @@ def deterministic_answer_fallback(question, sql_query, query_results):
     if "region" in first and "total_revenue" in first and len(query_results) == 1:
         reg = first["region"]
         rev = first["total_revenue"]
-        formatted_rev = f"₹{rev:,.2f}"
+        formatted_rev = f"Rs. {rev:,.2f}"
         return {
             "success": True,
             "answer": f"The **{reg}** region generated the highest sales, totaling **{formatted_rev}**.",
