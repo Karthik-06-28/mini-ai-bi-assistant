@@ -88,7 +88,7 @@ Mini-AI-Business-Intelligence-Assistant/
 ### Step 1: Clone the Repository and Open It
 
 ```bash
-git clone https://github.com/<YOUR-USERNAME>/mini-ai-bi-assistant.git
+git clone https://github.com/Karthik-06-28/mini-ai-bi-assistant.git
 cd mini-ai-bi-assistant
 ```
 
