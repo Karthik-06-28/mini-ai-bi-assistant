@@ -23,6 +23,7 @@ import sys
 # Add backend directory to Python path for sibling imports
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
+# pyrefly: ignore[missing-import]
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 

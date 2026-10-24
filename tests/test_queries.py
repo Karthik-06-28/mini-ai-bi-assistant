@@ -14,6 +14,7 @@ Verifies:
   - Numbers match verified ground truth from the CSV.
 """
 
+# pyrefly: ignore[missing-import]
 import pytest
 import os
 import sys
