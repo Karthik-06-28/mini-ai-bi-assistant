@@ -171,7 +171,7 @@ Expected output:
 
 ### Step 7: Open the Application
 
-Navigate to **[http://localhost:5000](http://localhost:5000)**. Click a suggestion chip or type your own question, for example:
+Navigate to **[http://localhost:5000](http://localhost:5000)**.Type a question in the chat box, for example:
 
 - *"What is the total revenue?"*
 - *"Which product generated the highest revenue?"*
