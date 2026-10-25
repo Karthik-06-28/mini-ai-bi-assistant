@@ -88,7 +88,7 @@ Mini-AI-Business-Intelligence-Assistant/
 ### Step 1: Clone the Repository and Open It
 
 ```bash
-git clone https://github.com/<YOUR-USERNAME>/mini-ai-bi-assistant.git
+git clone https://github.com/Karthik-06-28/mini-ai-bi-assistant.git
 cd mini-ai-bi-assistant
 ```
 
@@ -171,7 +171,7 @@ Expected output:
 
 ### Step 7: Open the Application
 
-Navigate to **[http://localhost:5000](http://localhost:5000)**. Click a suggestion chip or type your own question, for example:
+Navigate to **[http://localhost:5000](http://localhost:5000)**.Type a question in the chat box, for example:
 
 - *"What is the total revenue?"*
 - *"Which product generated the highest revenue?"*
